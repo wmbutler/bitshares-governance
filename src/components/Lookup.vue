@@ -3,7 +3,7 @@
     <div id="spacer">
     </div>
     <div id="card">
-      <input v-model="baseaccount" placeholder="bitshares account">
+      <input v-on:change="begin" v-model="baseaccount" placeholder="bitshares account">
       <div id="helptext">
         [Last Irreversible Block {{ last_irreversible_block_num }}]
       </div>
@@ -47,7 +47,6 @@
 
 <script>
 import axios from 'axios';
-import _ from 'lodash';
 
 function isWitness(voteId) {
   const filter = /^1.*$/;
@@ -57,7 +56,6 @@ function isWitness(voteId) {
 export default {
 
   created() {
-    // console.log(this.$route);
     this.baseaccount = this.$route.params.baseaccount;
   },
 
@@ -102,32 +100,8 @@ export default {
 
   watch: {
 
-    // last_irreversible_block_num: function lastIrreversibleBlockNum() {
-    //   this.begin();
-    // },
-
     baseaccount: function baseAccount() {
-      this.last_irreversible_block_num = 0;
       this.begin();
-    },
-
-    voting_account: function votingAccount() {
-      if (this.voting_account !== 'missing') {
-        this.getDynamicGlobalProperties();
-      }
-      if (this.voting_account === 'missing') {
-        console.log('0', this.voting_account, this.name);
-        this.message = 'This is not an active/valid account.';
-      } else if (this.votes.length === 0 && this.voting_account === '1.2.5' && this.name === this.baseaccount) {
-        console.log('1', this.name);
-        this.message = 'This account is not voting or proxying votes.';
-      } else if (this.voting_account && this.voting_account !== '1.2.5') {
-        console.log('2', this.voting_account, this.name, this.baseaccount);
-        this.getAccounts();
-      } else {
-        console.log('3', this.voting_account, this.name);
-        this.getWitnesses();
-      }
     },
 
     witnesses: function witnesses() {
@@ -139,6 +113,7 @@ export default {
 
     begin: function begin() {
       console.log('begin');
+      this.last_irreversible_block_num = 0;
       this.proxies = [];
       this.accounts = [];
       this.votes = [];
@@ -149,8 +124,35 @@ export default {
       this.errors = [];
       this.message = '';
       this.$router.push({ name: 'Lookup', params: { baseaccount: this.baseaccount } });
-      this.name = this.baseaccount;
-      this.getAccountByName();
+      this.getDynamicGlobalProperties((blockNum) => {
+        this.last_irreversible_block_num = blockNum;
+        this.name = this.baseaccount;
+        this.getAccountByName((votingAccount) => {
+          if (votingAccount === '1.2.5' && this.votes.length > 0) {
+            this.getWitnesses();
+          } else if (votingAccount === 'missing') {
+            this.message = 'This is not an active/valid account.';
+          } else if (this.votes.length === 0 && votingAccount === '1.2.5') {
+            this.message = 'This account is not voting or proxying votes.';
+          } else {
+            this.addProxy(votingAccount);
+          }
+        });
+      });
+    },
+
+    addProxy: function addProxy(votingAccount) {
+      if (votingAccount === '1.2.5') {
+        console.log('getWitnesses');
+        this.getWitnesses();
+      } else {
+        console.log('addProxy');
+        console.log('2', votingAccount, this.name, this.baseaccount);
+        this.getAccounts(votingAccount, (va) => {
+          console.log('init', va);
+          this.addProxy(va);
+        });
+      }
     },
 
     getWitnesses: function getWitnesses() {
@@ -175,7 +177,7 @@ export default {
       .catch((e) => { this.errors.push(e); });
     },
 
-    getAccountByName: function getAccountByName() {
+    getAccountByName: function getAccountByName(callback) {
       console.log('getAccountByName');
       axios.post(this.proxyUrl, {
         data: {
@@ -187,10 +189,10 @@ export default {
       })
       .then((response) => {
         if (response.data.result) {
-          this.voting_account = response.data.result.options.voting_account;
           this.votes = response.data.result.options.votes.filter(isWitness);
+          callback(response.data.result.options.voting_account);
         } else {
-          this.voting_account = 'missing';
+          callback('missing');
         }
       })
       .catch((e) => {
@@ -198,12 +200,12 @@ export default {
       });
     },
 
-    getAccounts: function getAccounts() {
+    getAccounts: function getAccounts(votingAccount, callback) {
       axios.post(this.proxyUrl, {
         data: {
           jsonrpc: '2.0',
           method: 'get_accounts',
-          params: [[this.voting_account]],
+          params: [[votingAccount]],
           id: 1,
         },
       })
@@ -212,29 +214,28 @@ export default {
         if (this.name !== this.baseaccount) {
           this.proxies.push(this.name);
         }
-        this.voting_account = response.data.result[0].options.voting_account;
         this.votes = response.data.result[0].options.votes.filter(isWitness);
+        callback(response.data.result[0].options.voting_account);
       })
       .catch((e) => { this.errors.push(e); });
     },
 
-    getDynamicGlobalProperties: _.debounce(
-      function getDynamicGlobalProperties() {
-        console.log('getDynamic');
-        axios.post(this.proxyUrl, {
-          data: {
-            jsonrpc: '2.0',
-            method: 'get_dynamic_global_properties',
-            id: 1,
-          },
-        })
-        .then((response) => {
-          this.last_irreversible_block_num = response.data.result.last_irreversible_block_num;
-        })
-        .catch((e) => { this.errors.push(e); });
-      },
-      300,
-    ),
+    getDynamicGlobalProperties: function getDynamicGlobalProperties(callback) {
+      let lastIrreversibleBlockNum = 0;
+      console.log('getDynamic');
+      return axios.post(this.proxyUrl, {
+        data: {
+          jsonrpc: '2.0',
+          method: 'get_dynamic_global_properties',
+          id: 1,
+        },
+      })
+      .then((response) => {
+        lastIrreversibleBlockNum = response.data.result.last_irreversible_block_num;
+        callback(lastIrreversibleBlockNum);
+      })
+      .catch((e) => { this.errors.push(e); });
+    },
 
     matchAccounts: function matchAccounts() {
       console.log('end');
