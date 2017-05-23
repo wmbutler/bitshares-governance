@@ -1,7 +1,7 @@
 <template>
   <div id="about">
       <h1>Introduction</h1>
-      As a shareholder, you have a say in how bitshares operates. Many decisions are made about the network, improvements to the gui, additional features, worker proposals etc. These are important decisions, but oftentimes, if you are new to an organization, it's difficult to know who is actively involved in making decisions that are in your best interest. It's also possible that you own very few BTS and as a result may now feel as if your vote makes a difference.
+      As a shareholder, you have a say in how bitshares operates. Many decisions are made about the network, improvements to the gui, additional features, worker proposals etc. These are important decisions, but oftentimes, if you are new to an organization, it's difficult to know who is actively involved in making decisions that are in your best interest.
       <h1>What does this tool do?</h1>
       This tool allows you to explore who you are voting for in order to hold those entities accountable. If, for instance, you see that you have cast a vote for a witness who is consistently thousands of blocks behind, do us all a favor and retract your vote. Voting for witnesses who are consistently processing blocks is a good thing. It's the democratic way to ensure that your investment remains sound.
       <h1>Vote or Proxy</h1>
