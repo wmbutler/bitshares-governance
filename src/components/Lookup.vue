@@ -62,7 +62,7 @@ export default {
   },
 
   data: () => ({
-    proxyUrl: 'http://52.23.94.205:9000',
+    proxyUrl: 'http://bts.butler.net:9000',
     accounts: [],
     name: '',
     baseaccount: '',
