@@ -62,6 +62,7 @@ export default {
   },
 
   data: () => ({
+    proxyUrl: 'http://52.23.94.205:9000',
     accounts: [],
     name: '',
     baseaccount: '',
@@ -150,7 +151,7 @@ export default {
     },
 
     getWitnesses: function getWitnesses() {
-      axios.post('http://localhost:9000', {
+      axios.post(this.proxyUrl, {
         data: {
           jsonrpc: '2.0',
           method: 'lookup_vote_ids',
@@ -173,7 +174,7 @@ export default {
 
     getAccountByName: function getAccountByName() {
       console.log('getAccountByName');
-      axios.post('http://localhost:9000', {
+      axios.post(this.proxyUrl, {
         data: {
           jsonrpc: '2.0',
           method: 'get_account_by_name',
@@ -195,7 +196,7 @@ export default {
     },
 
     getAccounts: function getAccounts() {
-      axios.post('http://localhost:9000', {
+      axios.post(this.proxyUrl, {
         data: {
           jsonrpc: '2.0',
           method: 'get_accounts',
@@ -217,7 +218,7 @@ export default {
     getDynamicGlobalProperties: _.debounce(
       function getDynamicGlobalProperties() {
         console.log('getDynamic');
-        axios.post('http://localhost:9000', {
+        axios.post(this.proxyUrl, {
           data: {
             jsonrpc: '2.0',
             method: 'get_dynamic_global_properties',
@@ -238,7 +239,7 @@ export default {
         return payload.witness_account;
       });
       // console.log(accounts);
-      axios.post('http://localhost:9000', {
+      axios.post(this.proxyUrl, {
         data: {
           jsonrpc: '2.0',
           method: 'get_accounts',

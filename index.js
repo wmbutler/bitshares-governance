@@ -3,15 +3,18 @@ var request = require('request');
 var bodyParser = require('body-parser');
 
 var app = express();
+var api = express();
 
-app.use(bodyParser.json());
-app.use(function(req, res, next) {
+app.use(express.static(__dirname + '/dist'));
+
+api.use(bodyParser.json());
+api.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
 });
 
-app.post('/', function(req, res) {
+api.post('/', function(req, res) {
 
   console.log(req.body.data);
 
@@ -33,4 +36,11 @@ app.post('/', function(req, res) {
 
 })
 
-app.listen(9000);
+api.listen(9000);
+
+console.log(process.env.NODE_ENV);
+
+if (process.env.NODE_ENV == 'production') {
+  app.listen(8080);
+}
+
