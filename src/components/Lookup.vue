@@ -53,6 +53,7 @@ function isWitness(voteId) {
   return filter.test(voteId);
 }
 
+
 export default {
 
   created() {
