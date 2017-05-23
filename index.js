@@ -41,6 +41,6 @@ api.listen(9000);
 console.log(process.env.NODE_ENV);
 
 if (!process.env.NODE_ENV) {
-  app.listen(8080);
+  app.listen(80);
 }
 
