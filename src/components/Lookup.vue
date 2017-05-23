@@ -102,16 +102,19 @@ export default {
 
   watch: {
 
-    last_irreversible_block_num: function lastIrreversibleBlockNum() {
-      this.begin();
-    },
+    // last_irreversible_block_num: function lastIrreversibleBlockNum() {
+    //   this.begin();
+    // },
 
     baseaccount: function baseAccount() {
       this.last_irreversible_block_num = 0;
-      this.getDynamicGlobalProperties();
+      this.begin();
     },
 
     voting_account: function votingAccount() {
+      if (this.voting_account !== 'missing') {
+        this.getDynamicGlobalProperties();
+      }
       if (this.voting_account === 'missing') {
         console.log('0', this.voting_account, this.name);
         this.message = 'This is not an active/valid account.';
