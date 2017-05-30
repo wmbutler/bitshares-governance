@@ -138,7 +138,7 @@ export default {
           } else if (votingAccount === 'missing') {
             this.message = 'This is not an active/valid account.';
           } else if (this.votes.length === 0 && votingAccount === '1.2.5') {
-            this.message = 'This account is not voting or proxying votes.';
+            this.message = 'This account is not voting or proxying votes. Consider making billbutler your proxy!';
           } else {
             this.addProxy(votingAccount);
           }
