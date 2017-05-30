@@ -3,7 +3,7 @@
     <div id="spacer">
     </div>
     <div id="card">
-      <input v-on:keyup="delay" v-model="baseaccount" placeholder="bitshares account">
+      <input v-on:change="" v-model="baseaccount" placeholder="bitshares account">
       <div id="helptext">
         [Last Irreversible Block {{ last_irreversible_block_num }}]
       </div>
@@ -102,6 +102,13 @@ export default {
 
   watch: {
 
+    baseaccount: function delay() {
+      clearTimeout(this.timer);
+      this.timer = setTimeout(() => {
+        this.begin();
+      }, 1000);
+    },
+
     witnesses: function witnesses() {
       this.matchAccounts();
     },
@@ -139,12 +146,12 @@ export default {
       });
     },
 
-    delay: function delay() {
-      clearTimeout(this.timer);
-      this.timer = setTimeout(() => {
-        this.begin();
-      }, 1000);
-    },
+    // delay: function delay() {
+    //   clearTimeout(this.timer);
+    //   this.timer = setTimeout(() => {
+    //     this.begin();
+    //   }, 1000);
+    // },
 
     addProxy: function addProxy(votingAccount) {
       if (votingAccount === '1.2.5') {
