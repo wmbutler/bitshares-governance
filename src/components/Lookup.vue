@@ -3,7 +3,7 @@
     <div id="spacer">
     </div>
     <div id="card">
-      <input v-on:change="begin" v-model="baseaccount" placeholder="bitshares account">
+      <input v-on:keyup="delay" v-model="baseaccount" placeholder="bitshares account">
       <div id="helptext">
         [Last Irreversible Block {{ last_irreversible_block_num }}]
       </div>
@@ -53,7 +53,6 @@ function isWitness(voteId) {
   return filter.test(voteId);
 }
 
-
 export default {
 
   created() {
@@ -62,6 +61,7 @@ export default {
 
   data: () => ({
     proxyUrl: 'http://bts.butler.net:9000',
+    // proxyUrl: 'http://localhost:9000',
     accounts: [],
     name: '',
     baseaccount: '',
@@ -75,6 +75,7 @@ export default {
     proxy_text: 'proxies to',
     witness_vote_text: 'votes for witnesses',
     errors: [],
+    timer: null,
 
     voteDisplay: ((votes) => {
       return Math.round((votes / 100000000000) * 1000) / 1000;
@@ -101,18 +102,14 @@ export default {
 
   watch: {
 
-    baseaccount: function baseAccount() {
-      this.begin();
-    },
-
     witnesses: function witnesses() {
       this.matchAccounts();
     },
   },
 
   methods: {
-
     begin: function begin() {
+      // Delay processing 1 second to calm typeahead
       console.log('begin');
       this.last_irreversible_block_num = 0;
       this.proxies = [];
@@ -140,6 +137,13 @@ export default {
           }
         });
       });
+    },
+
+    delay: function delay() {
+      clearTimeout(this.timer);
+      this.timer = setTimeout(() => {
+        this.begin();
+      }, 1000);
     },
 
     addProxy: function addProxy(votingAccount) {
