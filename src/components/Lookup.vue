@@ -87,7 +87,7 @@ export default {
 
     blocksBehind: ((blocks) => {
       let result = 0;
-      if (blocks > 0) {
+      if (blocks > 50) {
         result = blocks;
       }
       return result;
